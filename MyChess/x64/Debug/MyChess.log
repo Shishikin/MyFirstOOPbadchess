@@ -1,4 +1,3 @@
 ﻿  MyChess.cpp
 C:\visial studio\MyChess\MyChess\MyChess.cpp(112,49): warning C4244: аргумент: преобразование "double" в "const unsigned __int64", возможна потеря данных
-C:\visial studio\MyChess\MyChess\MyChess.cpp(332): warning C4715: Chess::CheckSet: значение возвращается не при всех путях выполнения
   MyChess.vcxproj -> C:\visial studio\MyChess\x64\Debug\MyChess.exe

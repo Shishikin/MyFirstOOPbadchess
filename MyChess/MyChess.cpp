@@ -237,20 +237,16 @@ class GameRules
 {
 public:
  //   virtual bool CheckMove(Figure figure, int coord1, int coord2) = 0;
-    virtual bool CheckSet(Figure figure, int coord) = 0;
+    virtual bool CheckSet(Board& board, Figure figure, int coord) = 0;
  //   virtual bool CheckRemove(Figure figure, int coord) = 0;
 };
 
 class Queens : public GameRules
 {
-private:
-    Board board;
+
 public:
-
-    Queens(Board &board_) : GameRules(), board(board_) {}
-
     // поставить фигуру
-    bool CheckSet(Figure figure, int coord) override
+    bool CheckSet(Board &board, Figure figure, int coord) override
     {           
         int size = board.Size();
         if (figure.IsA(Queen) && CheckCoord(coord, size * size))
@@ -314,14 +310,10 @@ public:
 
 class Chess : public GameRules
 {
-private:
-    Board board;
-
 public:
 
-    Chess(Board& board_) : GameRules(), board(board_) {}
     // поставить фигуру
-    bool CheckSet(Figure figure, int coord) override
+    bool CheckSet(Board &board, Figure figure, int coord) override
     {
         int size = board.Size();
         if (figure.IsA(Queen) && CheckCoord(coord, size * size))
@@ -339,14 +331,14 @@ private:
     GameRules* gr;
     Board board;
 public:
-
+    //НУЖЕН БУДЕТ КОНСТРУКТОР КОПИРОВАНИЯ
     Match(GameRules* gr_, Board &board_): gr(gr_), board(board_)
     {        
     }    
 
     void Set(int coord, Figure figure)
     {
-        if (gr->CheckSet(figure, coord))
+        if (gr->CheckSet(board, figure, coord))
         {
             board.Set(coord, figure);
         }
@@ -360,13 +352,13 @@ public:
     }
     static Match* CreateQueens(Board &board)
     {
-        GameRules* queens = new Queens(board);
+        GameRules* queens = new Queens();
         Match* match = new Match(queens, board);
         return match;
     }    
     static Match* CreateChess(Board& board)
     {
-        GameRules* chess = new Chess(board);
+        GameRules* chess = new Chess();
         Match* match = new Match(chess, board);
         return match;
     }
@@ -403,15 +395,16 @@ int main()
     queens->Set(10, Figure(Queen));
     queens->Set(1, Figure(Queen));
     queens->Set(100, Figure(Queen));
-
+/*
     Match* chess = Match::CreateChess(board);
     chess->Set(0, Figure(Queen));
     chess->Set(1, Figure(Queen));
     chess->Set(10, Figure(Queen));
     chess->Set(1, Figure(Queen));
     chess->Set(100, Figure(Queen));
+    */
     queens->Print();
-    chess->Print();
+ //   chess->Print();
  //   std::cout << board;
     return 0;
 }
