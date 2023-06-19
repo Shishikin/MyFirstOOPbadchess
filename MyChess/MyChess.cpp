@@ -236,9 +236,9 @@ std::ostream& operator << (std::ostream& out, const Board& board)
 class GameRules
 {
 public:
- //   virtual bool CheckMove(Figure figure, int coord1, int coord2) = 0;
+    virtual bool CheckMove(Board& board,  Figure figure, int coord1, int coord2) = 0;
     virtual bool CheckSet(Board& board, Figure figure, int coord) = 0;
- //   virtual bool CheckRemove(Figure figure, int coord) = 0;
+    virtual bool CheckRemove(Board& board, Figure figure, int coord) = 0;
 };
 
 class Queens : public GameRules
@@ -250,42 +250,33 @@ public:
     {           
         int size = board.Size();
         if (figure.IsA(Queen) && CheckCoord(coord, size * size))
-        {
- 
+        { 
             const std::map<int, char > &position = board.Position();
-            std::cout << '\n' <<"pjoo" << board;
-            std::cout << '\n' << &board;
- //           std::map <int, char> ::iterator it = position.begin();
- //           for (; it != position.end(); it++)
             for(auto it: position)
             {
-                std::cout << "yu";
                 if (it.first / size == coord / size || it.first % size == coord % size ||
                     (abs(it.first / size - coord / size) == abs(it.first % size - coord % size)))
                 {
                     return false;
                 }
             }
-            board.Set(coord, figure);
             return true;
         }
         else
         {
             return false;
         }
-        
-        //return true;
     }
     
-/* пока не работает
-    bool CheckRemove(Figure figure, int coord) override
+// удалить фигуру
+    bool CheckRemove(Board &board, Figure figure, int coord) override
     {
-
         return true;
     }
 
+    //ПОКА НЕ ПРОВЕРЯЛ
     //переместить фигуру
-    bool CheckMove(Figure figure, int coord1, int coord2) override
+    bool CheckMove(Board& board, Figure figure, int coord1, int coord2) override
     {
         int size = board.Size();
         if (figure.IsA(Queen) && CheckCoord(coord1, size * size) && CheckCoord(coord2, size * size) && (coord1 != coord2))
@@ -304,7 +295,7 @@ public:
             return false;
         }
     }
-    */
+    
 };
 
 
@@ -318,9 +309,19 @@ public:
         int size = board.Size();
         if (figure.IsA(Queen) && CheckCoord(coord, size * size))
         {
-            board.Set(coord, figure);
             return true;
         }
+    }
+    //ПОКА НЕ РАБОТАЕТ
+    bool CheckRemove(Board& board, Figure figure, int coord) override
+    {
+        return true;
+    }
+    //ПОКА НЕ РАБОТАЕТ
+    //переместить фигуру
+    bool CheckMove(Board& board, Figure figure, int coord1, int coord2) override
+    {
+        return false;
     }
 };
 
@@ -332,6 +333,7 @@ private:
     Board board;
 public:
     //НУЖЕН БУДЕТ КОНСТРУКТОР КОПИРОВАНИЯ
+    //НАПИСАТЬ ФУНКЦИЮ ПЕРЕМЕЩЕНИЯ И УДАЛЕНИЯ
     Match(GameRules* gr_, Board &board_): gr(gr_), board(board_)
     {        
     }    
@@ -392,19 +394,21 @@ int main()
  //   queens->Set(65, Figure(Queen));
     queens->Set(0, Figure(Queen));
     queens->Set(1, Figure(Queen));
+    queens->Set(8, Figure(Queen));
+    queens->Set(18, Figure(Queen));
     queens->Set(10, Figure(Queen));
+    queens->Set(62, Figure(Queen));
     queens->Set(1, Figure(Queen));
     queens->Set(100, Figure(Queen));
-/*
     Match* chess = Match::CreateChess(board);
     chess->Set(0, Figure(Queen));
     chess->Set(1, Figure(Queen));
-    chess->Set(10, Figure(Queen));
-    chess->Set(1, Figure(Queen));
+    chess->Set(2, Figure(Queen));
+    chess->Set(11, Figure(Queen));
     chess->Set(100, Figure(Queen));
-    */
+    
     queens->Print();
- //   chess->Print();
+    chess->Print();
  //   std::cout << board;
     return 0;
 }
