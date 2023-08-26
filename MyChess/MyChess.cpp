@@ -41,6 +41,7 @@ private:
 public:
     //конструктор 
     Figure(FigureType figuretype) : color(white), type(figuretype) {}
+    //делегирующий конструктор
     Figure(FigureType figuretype, Color color_) :  Figure(figuretype) 
     {
         color = color_;
