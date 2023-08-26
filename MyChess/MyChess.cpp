@@ -41,7 +41,10 @@ private:
 public:
     //конструктор 
     Figure(FigureType figuretype) : color(white), type(figuretype) {}
-
+    Figure(FigureType figuretype, Color color_) :  Figure(figuretype) 
+    {
+        color = color_;
+    }
     //дружественная функция (перегрузка <<) для вывода типа фигуры
     friend std::ostream& operator << (std::ostream& out, const Figure& figure)
     {
@@ -66,13 +69,16 @@ public:
 //класс клетки
 class Cell
 {
+
 private:
     Color color; // цвет клетки
     Figure figure; // фигура, стоящая на клетке
+
 public:
     //конструктор по умолчанию
     Cell() : color(white), figure(Figure(Empty)) {}
-    Cell(Color _colorCell, FigureType fig) : color(_colorCell), figure(Figure(fig)) {}
+    Cell(Color colorCell_, FigureType fig) : color(colorCell_), figure(Figure(fig)) {}
+    Cell(Color colorCell_, FigureType fig, Color colorFigure) : color(colorCell_), figure(Figure(fig, colorFigure)) {  }
     //перегрузка оператора <<
     friend std::ostream& operator << (std::ostream& out, const Cell& cell)
     {
@@ -336,6 +342,7 @@ public:
     //НАПИСАТЬ ФУНКЦИЮ ПЕРЕМЕЩЕНИЯ И УДАЛЕНИЯ
     Match(GameRules* gr_, Board &board_): gr(gr_), board(board_)
     {        
+        std::cout << "constructor/n";
     }    
 
     void Set(int coord, Figure figure)
@@ -368,6 +375,7 @@ public:
     ~Match()
     {
         delete gr;
+        std::cout << "destructor/n";
     }
 };
 
@@ -409,6 +417,8 @@ int main()
     
     queens->Print();
     chess->Print();
+  //  delete queens;
+  //  delete chess;
  //   std::cout << board;
     return 0;
 }
