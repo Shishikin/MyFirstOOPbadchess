@@ -360,12 +360,16 @@ public:
         std::cout << board;
         std::cout <<'\n'<< &board;
     }
-    static Match* CreateQueens(Board &board)
+
+    // метод начала расстановки восьми ферзей
+    static Match* CreateQueens(Board& board)
     {
         GameRules* queens = new Queens();
         Match* match = new Match(queens, board);
         return match;
     }    
+
+    // метод начала шахматной партии
     static Match* CreateChess(Board& board)
     {
         GameRules* chess = new Chess();
@@ -373,7 +377,9 @@ public:
         return match;
     }
     // нужен будет еще конструктор копирования и оператор присваивания
-    ~Match()
+
+    // виртуальный деструктор так как мы выделяем динамическую память
+    virtual ~Match()
     {
         delete gr;
         std::cout << "destructor/n";
@@ -410,12 +416,12 @@ int main()
     queens->Set(1, Figure(Queen));
     queens->Set(100, Figure(Queen));
     Match* chess = Match::CreateChess(board);
+    Match* chesss = Match::CreateChess(board);
     chess->Set(0, Figure(Queen));
     chess->Set(1, Figure(Queen));
     chess->Set(2, Figure(Queen));
     chess->Set(11, Figure(Queen));
     chess->Set(100, Figure(Queen));
-    
     queens->Print();
     chess->Print();
   //  delete queens;
