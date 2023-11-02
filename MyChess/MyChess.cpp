@@ -1,4 +1,5 @@
-﻿#include <cmath>
+﻿//КОНСТРУКТОР КОПИРОВАНИЯ СОДАТЬ НЕ ПОЛУЧИЛОСЬ
+#include <cmath>
 #include <iostream>
 #include <vector>
 #include <map>
@@ -42,7 +43,7 @@ public:
     //конструктор 
     Figure(FigureType figuretype) : color(white), type(figuretype) {}
     //делегирующий конструктор
-    Figure(FigureType figuretype, Color color_) :  Figure(figuretype) 
+    Figure(FigureType figuretype, Color color_) : Figure(figuretype)
     {
         color = color_;
     }
@@ -63,9 +64,8 @@ public:
     {
         return (char)(type);
     }
+
 };
-
-
 
 //класс клетки
 class Cell
@@ -92,6 +92,11 @@ public:
     char CellFigure() const
     {
         return figure.CharGetTypeFigure();
+    }
+
+    void SetOfFigure(Figure fig)
+    {
+        figure = fig;
     }
 
 };
@@ -147,8 +152,8 @@ public:
     }
     Board(int bsize); //конструктор по умолчанию
 
-//псевдокласс нужен для возможности обращения по [][]
-// const Proxy operator[] (int i) const;
+    //псевдокласс нужен для возможности обращения по [][]
+    // const Proxy operator[] (int i) const;
 
     const Proxy operator[] (int i) const
 
@@ -158,17 +163,10 @@ public:
     }
 
     friend std::ostream& operator << (std::ostream& out, const Board& board); // печать только доски, пока занятых клеток не печатает
-    
+
     void Set(int coord, Figure figure)
     {
-        if ((coord/size + coord % size) % 2 == 0)
-        {
-            cells[coord] = Cell(black, (FigureType)(figure.CharGetTypeFigure()));
-        }
-        else
-        {
-            cells[coord] = Cell(white, (FigureType)(figure.CharGetTypeFigure()));
-        }        
+        cells[coord].SetOfFigure(figure);
     }
 
     void Remove(int coord, Figure figure)
@@ -183,16 +181,6 @@ public:
         }
     }
 };
-
-void PrintPosition(std::map<int, char> PositionList) {
-    std::map <int, char> ::iterator it = PositionList.begin();
-    for (; it != PositionList.end(); it++) {
-        int num = ((it->first) % 8) + 1;
-        int letter = (it->first) / 8;
-        std::cout << (char)(letter + 65);
-        std::cout << num << "\n";
-    }
-}
 
 //конструктор по умолчанию для доски
 Board::Board(int bsize) : size(bsize)
@@ -213,7 +201,7 @@ Board::Board(int bsize) : size(bsize)
             }
         }
     }
- //   cells[0] = Cell(black, Queen);
+    //   cells[0] = Cell(black, Queen);
 }
 
 // печать только доски
@@ -243,7 +231,7 @@ std::ostream& operator << (std::ostream& out, const Board& board)
 class GameRules
 {
 public:
-    virtual bool CheckMove(Board& board,  Figure figure, int coord1, int coord2) = 0;
+    virtual bool CheckMove(Board& board, Figure figure, int coord1, int coord2) = 0;
     virtual bool CheckSet(Board& board, Figure figure, int coord) = 0;
     virtual bool CheckRemove(Board& board, Figure figure, int coord) = 0;
 };
@@ -253,13 +241,13 @@ class Queens : public GameRules
 
 public:
     // поставить фигуру
-    bool CheckSet(Board &board, Figure figure, int coord) override
-    {           
+    bool CheckSet(Board& board, Figure figure, int coord) override
+    {
         int size = board.Size();
         if (figure.IsA(Queen) && CheckCoord(coord, size * size))
-        { 
-            const std::map<int, char > &position = board.Position();
-            for(auto it: position)
+        {
+            const std::map<int, char >& position = board.Position();
+            for (auto it : position)
             {
                 if (it.first / size == coord / size || it.first % size == coord % size ||
                     (abs(it.first / size - coord / size) == abs(it.first % size - coord % size)))
@@ -274,9 +262,9 @@ public:
             return false;
         }
     }
-    
-// удалить фигуру
-    bool CheckRemove(Board &board, Figure figure, int coord) override
+
+    // удалить фигуру
+    bool CheckRemove(Board& board, Figure figure, int coord) override
     {
         return true;
     }
@@ -302,7 +290,7 @@ public:
             return false;
         }
     }
-    
+
 };
 
 
@@ -311,12 +299,16 @@ class Chess : public GameRules
 public:
 
     // поставить фигуру
-    bool CheckSet(Board &board, Figure figure, int coord) override
+    bool CheckSet(Board& board, Figure figure, int coord) override
     {
         int size = board.Size();
         if (figure.IsA(Queen) && CheckCoord(coord, size * size))
         {
             return true;
+        }
+        else
+        {
+            return false;
         }
     }
     //ПОКА НЕ РАБОТАЕТ
@@ -338,13 +330,14 @@ class Match
 private:
     GameRules* gr;
     Board board;
+
 public:
     //НУЖЕН БУДЕТ КОНСТРУКТОР КОПИРОВАНИЯ
     //НАПИСАТЬ ФУНКЦИЮ ПЕРЕМЕЩЕНИЯ И УДАЛЕНИЯ
-    Match(GameRules* gr_, Board &board_): gr(gr_), board(board_)
-    {        
-        std::cout << "constructor/n";
-    }    
+    Match(GameRules* gr_, Board& board_) : gr(gr_), board(board_)
+    {
+        std::cout << "constructor\n";
+    }
 
     void Set(int coord, Figure figure)
     {
@@ -354,11 +347,13 @@ public:
         }
     }
 
+
     //вывод доски
     void Print()
     {
         std::cout << board;
-        std::cout <<'\n'<< &board;
+        std::cout << '\n' << &board;
+        std::cout << gr << '\n';
     }
 
     // метод начала расстановки восьми ферзей
@@ -367,7 +362,7 @@ public:
         GameRules* queens = new Queens();
         Match* match = new Match(queens, board);
         return match;
-    }    
+    }
 
     // метод начала шахматной партии
     static Match* CreateChess(Board& board)
@@ -376,37 +371,69 @@ public:
         Match* match = new Match(chess, board);
         return match;
     }
-    // нужен будет еще конструктор копирования и оператор присваивания
 
-    // виртуальный деструктор так как мы выделяем динамическую память
+    Match(const Match& other) : board(other.board)
+    {
+        if (other.gr != nullptr)
+        {
+            if (dynamic_cast<Queens*>(other.gr))
+            {
+                gr = new Queens();
+                *gr = *dynamic_cast<Queens*>(other.gr);
+            }
+            else
+            {
+                if (dynamic_cast<Chess*>(other.gr))
+                {
+                    gr = new Chess();
+                    *gr = *dynamic_cast<Chess*>(other.gr);
+                }
+            }
+        }
+        else
+        {
+            gr = nullptr;
+        }
+    }
+
+    Match& operator=(const Match& other)
+    {
+        board = other.board;
+        if (other.gr != nullptr)
+        {
+            if (dynamic_cast<Queens*>(other.gr))
+            {
+                gr = new Queens();
+                *gr = *dynamic_cast<Queens*>(other.gr);
+            }
+            else
+            {
+                if (dynamic_cast<Chess*>(other.gr))
+                {
+                    gr = new Chess();
+                    *gr = *dynamic_cast<Chess*>(other.gr);
+                }
+            }
+        }
+        else
+        {
+            gr = nullptr;
+        }
+        return *this;
+    }
+    // виртуальный деструктор так как мы выделяем динамическую память, может понадобиться при создании 
     virtual ~Match()
     {
         delete gr;
-        std::cout << "destructor/n";
+        std::cout << "destructor\n";
     }
 };
 
 int main()
 {
+
     Board board = Board(8);
- //   std::cout << board;
- //   std::cout << &board;
- //   board.Set(9, Figure(Queen));
-    /*
-    Cell a = board[1][0];
-    std::cout << a;
-    char checksymvol = board[1][0].CellFigure();
-    std::cout << checksymvol << '\n';
-    std::map<int, char> Dictionary = board.Position();
-    PrintPosition(Dictionary);
-    Queens queens(board);
-    bool q = queens.CheckSet(Figure(Queen), 19);
-    std::cout << q << '\n';
-    q = queens.CheckMove(Figure(Queen), 0, 19);
-    std::cout << q;
-    */
-    Match * queens = Match::CreateQueens(board);
- //   queens->Set(65, Figure(Queen));
+    Match* queens = Match::CreateQueens(board);
     queens->Set(0, Figure(Queen));
     queens->Set(1, Figure(Queen));
     queens->Set(8, Figure(Queen));
@@ -424,8 +451,15 @@ int main()
     chess->Set(100, Figure(Queen));
     queens->Print();
     chess->Print();
-  //  delete queens;
-  //  delete chess;
- //   std::cout << board;
+    chesss->Print();
+    Match q = Match(*queens);
+    queens->Print();
+    q.Print();
+    Match a = q;
+    a.Print();
+    delete queens;
+    delete chess;
+    delete chesss;
+    //   std::cout << board;
     return 0;
 }
